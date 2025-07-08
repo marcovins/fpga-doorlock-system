@@ -91,13 +91,18 @@ output	logic 		setup_end
 
     endtask
 
+    logic key_valid, key_valid_d;
+    logic key_valid_rise;
+
     always_ff@(posedge clk or posedge rst) begin
         if(rst)begin
             ESTADO_ATUAL <= IDLE;
             setup_end <= 1;
             bcd_enable <= 1;
+            key_valid_d <= 1'b0;
             
         end else begin
+            key_valid_d <= key_valid;
             int valor, dezena, unidade;
 
             case(ESTADO_ATUAL)
@@ -121,7 +126,7 @@ output	logic 		setup_end
                 end
 
                 ATIVAR_BIP: begin
-                    if (key_valid) begin
+                    if(key_valid_rise) begin
                         if (key_code == 4'hF) begin
                             
                             valor   = data_setup_new.bip_time;
@@ -129,8 +134,6 @@ output	logic 		setup_end
                             unidade = valor % 10;
 
                             update_bcd( 4'd0, 4'd2, 4'hF, 4'hF, dezena[3:0], unidade[3:0], bcd_out);
-
-                            while (key_valid);
 
                             if (bcd_enable)
                                 bcd_enable = 0;
@@ -149,7 +152,7 @@ output	logic 		setup_end
                 end
 
                 TEMPO_BIP: begin
-                    if (key_valid) begin
+                    if(key_valid_rise) begin
                         if(key_code == 4'hF)begin
 
 
@@ -159,8 +162,6 @@ output	logic 		setup_end
 
                             update_bcd( 4'd0, 4'd3, 4'hF, 4'hF, dezena[3:0], unidade[3:0], bcd_out);
         
-                            while (key_valid);
-
                             if(bcd_enable)
                                 bcd_enable = 0;
                             ESTADO_ATUAL = TEMPO_TRAVAMENTO_AUTO;
@@ -192,7 +193,7 @@ output	logic 		setup_end
                 end
 
                 TEMPO_TRAVAMENTO_AUTO:begin
-                    if (key_valid) begin
+                    if(key_valid_rise) begin
                         if(key_code == 4'hF)begin
                             update_bcd( 4'd0, 4'd4, data_setup_new.pin1.digit1,
                              data_setup_new.pin1.digit2,
@@ -200,8 +201,6 @@ output	logic 		setup_end
                              data_setup_new.pin1.digit4,
                              bcd_out
                              );
-
-                            while(key_valid);
 
                             if(bcd_enable)
                                 bcd_enable = 0;
@@ -233,12 +232,10 @@ output	logic 		setup_end
                 end
 
                 SENHA_PIN1:begin
-                    if(key_valid)begin
+                    if(key_valid_rise)begin
                         if(key_code == 4'hF)begin
                             update_bcd(4'd0, 4'd5, 4'hF, 4'hF, 4'hF, data_setup_new.pin2.status, bcd_out);
                             
-                            while(key_valid);
-
                             if(bcd_enable)
                                 bcd_enable = 0;
                             ESTADO_ATUAL = ATIVAR_PIN2;
@@ -258,7 +255,7 @@ output	logic 		setup_end
                 end
 
                 ATIVAR_PIN2:begin
-                    if(key_valid)begin
+                    if(key_valid_rise)begin
                         if(key_code == 4'hF)begin
                             update_bcd(4'd0, 4'd6, data_setup_new.pin2.digit1,
                                                    data_setup_new.pin2.digit2,
@@ -266,8 +263,6 @@ output	logic 		setup_end
                                                    data_setup_new.pin2.digit4,
                                                    bcd_out);
                            
-                            while(key_valid);
-
                             if(bcd_enable)
                                 bcd_enable = 0;
                             ESTADO_ATUAL = SENHA_PIN2;
@@ -283,12 +278,10 @@ output	logic 		setup_end
                 end
 
                 SENHA_PIN2:begin
-                    if(key_valid)
+                    if(key_valid_rise)
                         if(key_code == 4'hF)begin
                             update_bcd(4'd0, 4'd7, 4'hF, 4'hF, 4'hF, data_setup_new.pin3.status, bcd_out);
                             
-                            while(key_valid);
-
                             if(bcd_enable)
                                 bcd_enable = 0;
                             ESTADO_ATUAL = ATIVAR_PIN3;
@@ -307,7 +300,7 @@ output	logic 		setup_end
                 end
 
                 ATIVAR_PIN3:begin
-                    if(key_valid)
+                    if(key_valid_rise)
                         if(key_code == 4'hF)begin
                             update_bcd(4'd0, 4'd8, data_setup_new.pin3.digit1,
                                                    data_setup_new.pin3.digit2,
@@ -315,8 +308,6 @@ output	logic 		setup_end
                                                    data_setup_new.pin3.digit4,
                                                    bcd_out);
                            
-                            while(key_valid);
-
                             if(bcd_enable)
                                 bcd_enable = 0;
                             ESTADO_ATUAL = SENHA_PIN3;
@@ -331,12 +322,10 @@ output	logic 		setup_end
                 end
 
                 SENHA_PIN3:begin
-                    if(key_valid)
+                    if(key_valid_rise)
                         if(key_code == 4'hF)begin
                             update_bcd(4'd0, 4'd9, 4'hF, 4'hF, 4'hF, data_setup_new.pin4.status, bcd_out);
                             
-                            while(key_valid);
-
                             if(bcd_enable)
                                 bcd_enable <= 0;
                             ESTADO_ATUAL <= ATIVAR_PIN4;
@@ -356,7 +345,7 @@ output	logic 		setup_end
                 end
 
                 ATIVAR_PIN4: begin
-                    if(key_valid)
+                    if(key_valid_rise)
                         if(key_code == 4'hF)begin
                             update_bcd(4'd1, 4'd0, data_setup_new.pin4.digit1,
                                                    data_setup_new.pin4.digit2,
@@ -364,7 +353,6 @@ output	logic 		setup_end
                                                    data_setup_new.pin4.digit4,
                                                    bcd_out);
                             
-                            while(key_valid);
 
                             if(bcd_enable)
                                 bcd_enable = 0;
@@ -380,7 +368,7 @@ output	logic 		setup_end
                 end
 
                 SENHA_PIN4:begin
-                    if(key_valid)
+                    if(key_valid_rise)
                         if(key_code == 4'hF)begin
                             update_bcd( 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, bcd_out);
 
@@ -427,4 +415,7 @@ output	logic 		setup_end
             endcase
         end
     end
+
+    assign key_valid_rise = key_valid && !key_valid_d;  // 100% sintetizável
+
 endmodule;
