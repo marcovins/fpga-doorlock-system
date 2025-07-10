@@ -86,40 +86,73 @@ module tb_operacional;
     digitar_senha(4'd1, 4'd2, 4'd3, 4'd4);
     #100;
 
-    // Simular abertura e fechamento da porta
-    sensor_de_contato = 0; // Porta aberta
-    #1000;
-    sensor_de_contato = 1; // Porta fechada
-    #100;
-
-    // Teste botão interno para abrir a porta
-    botao_interno = 1;
-    #20;
-    botao_interno = 0;
-    #200;
-
     // Teste atualização de senha master
-    digitar_senha(4'd1, 4'd2, 4'd3, 4'd4); // Senha padrão
+    digitar_senha(4'd5, 4'd6, 4'd7, 4'd8); // Senha padrão
     #100;
-
-    // Digitar sequência mágica de update master (1-2-3-4 + F)
-    digitar_senha(4'd1, 4'd2, 4'd3, 4'd4);
-    #200;
-
-    // Simular final do setup
-    setup_end = 1;
-    #20;
-    setup_end = 0;
 
     // Encerrar simulação
     #500;
     $finish;
   end
 
-    // Monitor
-    initial begin
-        $monitor("Time=%0t State=%s Tranca=%b Bip=%b Setup_on=%b Tentativas=%d",
-                 $time, dut.ESTADO_ATUAL.name(), tranca, bip, setup_on, dut.tentativas);
+        initial begin
+        $display("\n==== Monitor de Sinais ====");
+        $display("Formato: T=tempo | key_code | key_valid | bip_status | tranca | master_pin | pin1..4 | BCD | Estado FSM\n");
+        $monitor("T=%0t | key_code=%h key_valid=%b | bip=%b | bip_time=%0d | tranca=%0d | master_pin=[%b %0d %0d %0d %0d] | pin1=[%b %0d %0d %0d %0d] | pin2=[%b %0d %0d %0d %0d] | pin3=[%b %0d %0d %0d %0d] | pin4=[%b %0d %0d %0d %0d] | BCD=[%0d %0d %0d %0d %0d %0d] | estado=%s",
+            $time,
+            key_code,
+            key_valid,
+            dut.bip,
+            dut.data_setup_old.bip_time,
+            dut.tranca,
+
+            // master_pin
+            dut.data_setup_old.master_pin.status,
+            dut.data_setup_old.master_pin.digit1,
+            dut.data_setup_old.master_pin.digit2,
+            dut.data_setup_old.master_pin.digit3,
+            dut.data_setup_old.master_pin.digit4,
+
+            // pin1
+            dut.data_setup_old.pin1.status,
+            dut.data_setup_old.pin1.digit1,
+            dut.data_setup_old.pin1.digit2,
+            dut.data_setup_old.pin1.digit3,
+            dut.data_setup_old.pin1.digit4,
+
+            // pin2
+            dut.data_setup_old.pin2.status,
+            dut.data_setup_old.pin2.digit1,
+            dut.data_setup_old.pin2.digit2,
+            dut.data_setup_old.pin2.digit3,
+            dut.data_setup_old.pin2.digit4,
+
+            // pin3
+            dut.data_setup_old.pin3.status,
+            dut.data_setup_old.pin3.digit1,
+            dut.data_setup_old.pin3.digit2,
+            dut.data_setup_old.pin3.digit3,
+            dut.data_setup_old.pin3.digit4,
+
+            // pin4
+            dut.data_setup_old.pin4.status,
+            dut.data_setup_old.pin4.digit1,
+            dut.data_setup_old.pin4.digit2,
+            dut.data_setup_old.pin4.digit3,
+            dut.data_setup_old.pin4.digit4,
+
+            // BCD
+            dut.bcd_out.BCD0,
+            dut.bcd_out.BCD1,
+            dut.bcd_out.BCD2,
+            dut.bcd_out.BCD3,
+            dut.bcd_out.BCD4,
+            dut.bcd_out.BCD5,
+
+            // Estado FSM
+            dut.ESTADO_ATUAL.name()
+        );
     end
+
 
 endmodule
