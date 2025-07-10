@@ -63,7 +63,7 @@ module operacional (
         data_setup_old_reg.bip_status <= 1;
         data_setup_old_reg.bip_time <= CINCO_SEG;
         data_setup_old_reg.tranca_aut_time <= CINCO_SEG;
-        data_setup_old_reg.master_pin <= '{status: 1'b1, digit1: 4'd1, digit2: 4'd2, digit3: 4'd3, digit4: 4'd4};
+        data_setup_old_reg.master_pin <= '{status: 1'b0, digit1: 4'd1, digit2: 4'd2, digit3: 4'd3, digit4: 4'd4};
         data_setup_old_reg.pin1 <= '{default: 4'd0, status: 1'b1};
         data_setup_old_reg.pin2 <= '{default: 4'd0, status: 1'b0};
         data_setup_old_reg.pin3 <= '{default: 4'd0, status: 1'b0};
@@ -91,7 +91,7 @@ module operacional (
     
     pinPac_t novo_master_pin;
 
-    logic key_valid, key_valid_d;
+    logic key_valid_d;
     logic key_valid_rise;
 
     assign key_valid_rise = key_valid && !key_valid_d;
@@ -153,7 +153,7 @@ module operacional (
                 end
 
                 UPDATE_MASTER: begin
-                    if (data_setup_old_reg.master_pin.status) begin
+                    if (novo_master_pin.status) begin
                         data_setup_old_reg.master_pin <= novo_master_pin;
                         ESTADO_ATUAL <= MONTAR_PIN;
                     end
