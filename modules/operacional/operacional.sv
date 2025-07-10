@@ -1,32 +1,3 @@
-// Tipos de dados
-typedef struct packed {
-    logic status;
-    logic [3:0] digit1;
-    logic [3:0] digit2;
-    logic [3:0] digit3;
-    logic [3:0] digit4;
-} pinPac_t;
-
-typedef struct packed {
-    logic bip_status;
-    logic [15:0] bip_time; // Qnt de bits alterada do documento
-    logic [15:0] tranca_aut_time; // Qnt de bits alterada do documento
-    pinPac_t master_pin;
-    pinPac_t pin1;
-    pinPac_t pin2;
-    pinPac_t pin3;
-    pinPac_t pin4;
-} setupPac_t;
-
-typedef struct packed {
-    logic [3:0] BCD0;
-    logic [3:0] BCD1;
-    logic [3:0] BCD2;
-    logic [3:0] BCD3;
-    logic [3:0] BCD4;
-    logic [3:0] BCD5;
-} bcdPac_t;
-
 module operacional (
     input 	logic clk, 
     input 	logic rst, 
@@ -58,6 +29,10 @@ module operacional (
     } estado_t;
 
     estado_t ESTADO_ATUAL;
+  
+  	// Tempos para 1KHz
+    localparam logic [14:0] UM_SEG = 1000, CINCO_SEG = 5000, DEZ_SEG = 10000,
+    VINTE_SEG = 20000, TRINTA_SEG = 30000;
 
     task setup_default(); begin
         data_setup_old_reg.bip_status <= 1;
@@ -81,10 +56,6 @@ module operacional (
     logic [2:0] tentativas;
     logic [14:0] counter_espera, tempo_espera;
     logic [15:0] counter_travamento, counter_bip;
-
-    // Tempos para 1KHz
-    localparam logic [14:0] UM_SEG = 1000, CINCO_SEG = 5000, DEZ_SEG = 10000,
-    VINTE_SEG = 20000, TRINTA_SEG = 30000;
 
     setupPac_t data_setup_old_reg;
     assign data_setup_old = data_setup_old_reg;
