@@ -44,7 +44,7 @@ module verificar_senha (
         end else begin
         case (estado)
             RESETADO: begin
-                if (senha_master_update) begin
+                if (!senha_master_update) begin
                     estado <= ESPERA;
                 end
             end
@@ -60,7 +60,7 @@ module verificar_senha (
             end
 
             VERIFICAR: begin
-                if (senha_master_update)
+                if (!senha_master_update)
                     estado <= MASTER_UPDATE;
                 else
                     estado <= CHECK_PIN;
@@ -113,7 +113,7 @@ module verificar_senha (
             end
 
             MASTER_OK: begin
-                if(senha_master_update)
+                if(!senha_master_update)
                     estado <= UPDATE_FLAG;
             end
 
@@ -166,7 +166,7 @@ end
             senha_padrao = 0;
             senha_pin = 0;
             senha_master = 0;
-            senha_master_update = 1;
+            senha_master_update = 0;
 
         end else begin
         case (estado)
@@ -188,7 +188,7 @@ end
             end
 
             TEMP: begin
-                senha_master_update = 0;
+                senha_master_update = 1;
                 senha_fail = 0;
                 senha_padrao = 0;
                 senha_pin = 0;
