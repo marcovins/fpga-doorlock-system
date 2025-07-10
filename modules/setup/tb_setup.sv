@@ -134,7 +134,7 @@ module setup_tb;
               end
           endtask
   
-        // Monitor para depuração em tempo real
+    // Monitor para depuração em tempo real
     // ------------------------------------------------------
     initial begin
       $monitor("T=%0t | key_code=%h key_valid=%b | ativar_bip=%b | bip_time=%d | tranca_time=%d | pin1=[%b %0d %0d %0d %0d] | pin2=[%b %0d %0d %0d %0d] | pin3=[%b %0d %0d %0d %0d] | pin4=[%b %0d %0d %0d %0d] | BCD=[%0d %0d %0d %0d %0d %0d] | estado=%s",
