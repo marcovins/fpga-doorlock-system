@@ -119,8 +119,10 @@ module operacional (
                 end
 
                 SETUP: begin
-                    if (setup_end)
+                  if (setup_end)begin
+                        data_setup_old_reg <= data_setup_new;
                         ESTADO_ATUAL <= MONTAR_PIN;
+                  end
                 end
 
                 UPDATE_MASTER: begin

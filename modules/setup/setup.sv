@@ -91,19 +91,18 @@ output	logic 		setup_end
 
     endtask
 
-    logic key_valid, key_valid_d;
-    logic key_valid_rise;
+    logic key_valid_d, key_valid_rise;
+    int valor, dezena, unidade;
 
     always_ff@(posedge clk or posedge rst) begin
         if(rst)begin
             ESTADO_ATUAL <= IDLE;
-            setup_end <= 1;
+            setup_end <= 0;
             bcd_enable <= 1;
             key_valid_d <= 1'b0;
             
         end else begin
             key_valid_d <= key_valid;
-            int valor, dezena, unidade;
 
             case(ESTADO_ATUAL)
                 
@@ -112,7 +111,7 @@ output	logic 		setup_end
 
                     if(bcd_enable)
                         bcd_enable = 0;
-                    setup_end <= 1;
+                    setup_end <= 0;
                     if(setup_on)
                         ESTADO_ATUAL <= RECEBER_DATA_SETUP_OLD;
                 end
@@ -390,20 +389,17 @@ output	logic 		setup_end
                 end
 
                 GERAR_DATA_SETUP_NEW:begin
-                    if(setup_end)
-                        setup_end = 0;
                     ESTADO_ATUAL <= BAIXAR_SETUP_END;
                 end
 
                 BAIXAR_SETUP_END:begin
                     if(!setup_end)
-                        ESTADO_ATUAL <= ESPERAR_SETUP_ON;
+                        setup_end = 1;
+                        ESTADO_ATUAL = ESPERAR_SETUP_ON;
                 end
 
                 ESPERAR_SETUP_ON:begin
                     if (!setup_on) begin
-                        if(!setup_end)
-                            setup_end = 1;
                         ESTADO_ATUAL <= LEVANTAR_SETUP_END;
                     end
                 end
