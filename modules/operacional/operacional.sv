@@ -59,6 +59,18 @@ module operacional (
 
     estado_t ESTADO_ATUAL;
 
+    task setup_default(); begin
+        data_setup_old_reg.bip_status <= 1;
+        data_setup_old_reg.bip_time <= CINCO_SEG;
+        data_setup_old_reg.tranca_aut_time <= CINCO_SEG;
+        data_setup_old_reg.master_pin <= '{status: 1'b1, digit1: 4'd1, digit2: 4'd2, digit3: 4'd3, digit4: 4'd4};
+        data_setup_old_reg.pin1 <= '{default: 4'd0, status: 1'b1};
+        data_setup_old_reg.pin2 <= '{default: 4'd0, status: 1'b0};
+        data_setup_old_reg.pin3 <= '{default: 4'd0, status: 1'b0};
+        data_setup_old_reg.pin4 <= '{default: 4'd0, status: 1'b0};
+    end
+    endtask
+
     // Sinais e saídas de submódulos
     logic senha_fail;
     logic senha_pin;
@@ -71,8 +83,18 @@ module operacional (
     logic [15:0] counter_travamento, counter_bip;
 
     // Tempos para 1KHz
-    localparam logic [14:0] UM_SEG = 1000, DEZ_SEG = 10000,
+    localparam logic [14:0] UM_SEG = 1000, CINCO_SEG = 5000, DEZ_SEG = 10000,
     VINTE_SEG = 20000, TRINTA_SEG = 30000;
+
+    setupPac_t data_setup_old_reg;
+    assign data_setup_old = data_setup_old_reg;
+    
+    pinPac_t novo_master_pin;
+
+    logic key_valid, key_valid_d;
+    logic key_valid_rise;
+
+    assign key_valid_rise = key_valid && !key_valid_d;
     
     always_ff @(posedge clk or posedge rst) begin
         if (rst) begin
@@ -80,9 +102,14 @@ module operacional (
             counter_espera <= 0;
             counter_travamento <= 0;
             counter_bip <= 0;
+            setup_default();
+            bcd_out <= '{default: 4'b1111}; // Apaga o display
+            key_valid_d <= 1'b0;
             ESTADO_ATUAL <= RESET;
         end
         else begin
+            key_valid_d <= key_valid;
+
             case (ESTADO_ATUAL)
                 RESET: begin
                     if (sensor_de_contato)
@@ -90,7 +117,7 @@ module operacional (
                 end
 
                 MONTAR_PIN: begin
-                    if (key_code == 4'hF && key_valid)
+                    if (key_code == 4'hF && key_valid_rise)
                         ESTADO_ATUAL <= VERIFICAR_SENHA;
                     else if (botao_interno)
                         ESTADO_ATUAL <= TRAVA_OFF;
@@ -126,23 +153,26 @@ module operacional (
                 end
 
                 UPDATE_MASTER: begin
-                    if (data_setup_old.master_pin.status)
+                    if (data_setup_old_reg.master_pin.status) begin
+                        data_setup_old_reg.master_pin <= novo_master_pin;
                         ESTADO_ATUAL <= MONTAR_PIN;
+                    end
                 end
 
                 TRAVA_OFF: begin
                     tentativas <= 0;
+                    bcd_out <= '{default: 4'b1111}; // Apaga o display
                     ESTADO_ATUAL <= PORTA_FECHADA;
                 end
 
                 PORTA_FECHADA: begin
                     if (!sensor_de_contato)
                         ESTADO_ATUAL <= PORTA_ABERTA;
-                    else if ((counter_travamento >= data_setup_old.tranca_aut_time) || botao_interno) begin
+                    else if ((counter_travamento >= data_setup_old_reg.tranca_aut_time) || botao_interno) begin
                         counter_travamento <= 0;
                         ESTADO_ATUAL <= TRAVA_ON;
                     end
-                    else if (counter_travamento < data_setup_old.tranca_aut_time)
+                    else if (counter_travamento < data_setup_old_reg.tranca_aut_time)
                         counter_travamento <= counter_travamento + 1;     
                 end
 
@@ -152,7 +182,7 @@ module operacional (
                         counter_bip <= 0;
                         ESTADO_ATUAL <= PORTA_FECHADA;
                     end
-                    else if (counter_bip < data_setup_old.bip_time)
+                    else if (counter_bip < data_setup_old_reg.bip_time)
                         counter_bip <= counter_bip + 1;
 
                 end
@@ -172,11 +202,12 @@ module operacional (
                 tempo_espera = 0;
                 tranca = 0;
                 bip = 0;
-                bcd_out = '{default: 4'b1111}; // Apaga o display
                 setup_on = 0;
+                bcd_enable = 1;
             end
 
             MONTAR_PIN: begin
+                bcd_enable = 1;
                 tranca = 1;
                 setup_on = 0;
             end
@@ -196,13 +227,13 @@ module operacional (
                 bip = 0;
 
             PORTA_ABERTA: begin
-                if ((counter_bip >= data_setup_old.bip_time) && data_setup_old.bip_status)
+                if ((counter_bip >= data_setup_old_reg.bip_time) && data_setup_old_reg.bip_status)
                     bip = 1;
             end
 
             TRAVA_OFF: begin
+                bcd_enable = 1;
                 tranca = 0;
-                bcd_out = '{default: 4'b1111}; // Apaga o display
             end
 
             TRAVA_ON:
@@ -210,6 +241,9 @@ module operacional (
 
             SETUP:
                 setup_on = 1;
+
+            default:
+                bcd_enable = 0;
         endcase
     end
 
@@ -238,7 +272,7 @@ module operacional (
         .rst(rst),
         .enable(senha_master),
         .pin_in(pin_montado),
-        .new_master_pin(data_setup_old.master_pin)
+        .new_master_pin(novo_master_pin)
     );
 
 endmodule;
