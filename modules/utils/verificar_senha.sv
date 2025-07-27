@@ -5,7 +5,6 @@ module verificar_senha (
     input  setupPac_t  data_setup,
     output logic       senha_fail,
     output logic       senha_padrao,
-    output logic       senha_pin,
     output logic       senha_master,
     output logic       senha_master_update
 );
@@ -41,6 +40,10 @@ module verificar_senha (
     always_ff @(posedge clk or posedge rst) begin : controle_estados
         if (rst) begin
             estado <= RESETADO;
+				senha_fail <= 0;
+            senha_padrao <= 0;
+            senha_master <= 0;
+            senha_master_update <= 0;
         end else begin
         case (estado)
             RESETADO: begin
@@ -50,13 +53,14 @@ module verificar_senha (
             end
 
             ESPERA: begin
-                if (pin_in.status && !status_d)
-                    estado <= VERIFICAR;
-              		pin_temp.status <= 1;
-              		pin_temp.digit1 <= pin_in.digit1;
-                    pin_temp.digit2 <= pin_in.digit2;
-                    pin_temp.digit3 <= pin_in.digit3;
-                    pin_temp.digit4 <= pin_in.digit4;
+                if (pin_in.status && !status_d) begin
+						 pin_temp.status <= 1;
+              		 pin_temp.digit1 <= pin_in.digit1;
+                   pin_temp.digit2 <= pin_in.digit2;
+                   pin_temp.digit3 <= pin_in.digit3;
+                   pin_temp.digit4 <= pin_in.digit4;
+                   estado <= VERIFICAR;
+              	 end
             end
 
             VERIFICAR: begin
@@ -102,33 +106,42 @@ module verificar_senha (
             end
 
             MASTER_UPDATE: begin
-                if ((pin_temp.digit1 == 4'b0001) &&
-                    (pin_temp.digit2 == 4'b0010) &&
-                    (pin_temp.digit3 == 4'b0011) &&
-                    (pin_temp.digit4 == 4'b0100)) begin
+                if ((pin_temp.digit4 == 4'b0001) &&
+                    (pin_temp.digit3 == 4'b0010) &&
+                    (pin_temp.digit2 == 4'b0011) &&
+                    (pin_temp.digit1 == 4'b0100)) begin
                     estado <= MASTER_OK;
                 end else begin
+						  senha_fail <= 1;
                     estado <= FAIL_FLAG;
                 end
             end
 
             MASTER_OK: begin
-                if(!senha_master_update)
-                    estado <= UPDATE_FLAG;
+                if(!senha_master_update)begin
+							senha_master <= 1;
+                     estado <= UPDATE_FLAG;
+					 end
             end
 
             MASTER_VALID: begin
-                if(senha_master)
+                if(senha_master)begin
+						  senha_master <= 1;
                     estado <= SETUP_FLAG;
+					 end
             end
 
             UPDATE_FLAG: begin
-                if(data_setup.master_pin.status)
+                if(data_setup.master_pin.status)begin
+						  senha_master_update <= 1;
+						  senha_master <= 0;
                     estado <= TEMP;
+					end
             end
           
           	PIN_VALID: begin
-              estado <= PIN_FLAG;
+               senha_padrao = 1;
+               estado <= PIN_FLAG;
             end
             
             FAIL_FLAG:     estado <= HOLD_FLAGS;
@@ -136,11 +149,13 @@ module verificar_senha (
             PIN_FLAG:      estado <= HOLD_FLAGS;
 
             HOLD_FLAGS: begin
-                    estado <= TEMP;
+						senha_fail <= 0;
+						senha_padrao <= 0;
+                  estado <= TEMP;
                 end
 
             TEMP: begin
-                case ({senha_fail, senha_master, senha_padrao, senha_pin})
+                case ({senha_fail, senha_master, senha_padrao})
                     
                     4'b0000: begin
                         estado <= ESPERA;
@@ -151,53 +166,11 @@ module verificar_senha (
                         pin_temp.digit4 <= 4'b1111;
                     end
                     
-                    default: 
-                        estado <= TEMP;
                 endcase
             end
 
         endcase
     end
-end
-
-    always_comb begin : controle_variaveis
-        if (rst) begin
-            senha_fail = 0;
-            senha_padrao = 0;
-            senha_pin = 0;
-            senha_master = 0;
-            senha_master_update = 0;
-
-        end else begin
-        case (estado)
-
-            MASTER_VALID: begin
-                senha_master = 1;
-            end
-
-            FAIL_FLAG: begin
-                senha_fail = 1;
-            end
-
-            PIN_FLAG: begin
-               senha_padrao = 1;
-            end
-
-            UPDATE_FLAG: begin
-                senha_master = 1;
-            end
-
-            TEMP: begin
-                senha_master_update = 1;
-                senha_fail = 0;
-                senha_padrao = 0;
-                senha_pin = 0;
-                senha_master = 0;
-                
-            end
-        endcase
-    end
-
 end
 
 endmodule

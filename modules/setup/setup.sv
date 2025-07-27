@@ -61,6 +61,7 @@ output	logic 		setup_end
     } estados_setup;
 
     estados_setup ESTADO_ATUAL;
+  	int valor, dezena, unidade;
 
     task automatic shift_digits(
         inout logic [3:0] d1, d2, d3, d4,
@@ -91,13 +92,13 @@ output	logic 		setup_end
 
     endtask
 
-    logic key_valid_d, key_valid_rise;
-    int valor, dezena, unidade;
+    logic key_valid, key_valid_d;
+    logic key_valid_rise;
 
     always_ff@(posedge clk or posedge rst) begin
         if(rst)begin
             ESTADO_ATUAL <= IDLE;
-            setup_end <= 0;
+            setup_end <= 1;
             bcd_enable <= 1;
             key_valid_d <= 1'b0;
             
@@ -111,7 +112,7 @@ output	logic 		setup_end
 
                     if(bcd_enable)
                         bcd_enable = 0;
-                    setup_end <= 0;
+                    setup_end <= 1;
                     if(setup_on)
                         ESTADO_ATUAL <= RECEBER_DATA_SETUP_OLD;
                 end
@@ -389,17 +390,20 @@ output	logic 		setup_end
                 end
 
                 GERAR_DATA_SETUP_NEW:begin
+                    if(setup_end)
+                        setup_end = 0;
                     ESTADO_ATUAL <= BAIXAR_SETUP_END;
                 end
 
                 BAIXAR_SETUP_END:begin
                     if(!setup_end)
-                        setup_end = 1;
-                        ESTADO_ATUAL = ESPERAR_SETUP_ON;
+                        ESTADO_ATUAL <= ESPERAR_SETUP_ON;
                 end
 
                 ESPERAR_SETUP_ON:begin
                     if (!setup_on) begin
+                        if(!setup_end)
+                            setup_end = 1;
                         ESTADO_ATUAL <= LEVANTAR_SETUP_END;
                     end
                 end

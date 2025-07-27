@@ -52,7 +52,7 @@ module tb_operacional;
       send_key(d2); #20;
       send_key(d3); #20;
       send_key(d4); #20;
-      send_key(4'hF); // Finalizador da senha
+      send_key(4'hF); #20; // Finalizador da senha
     end
   endtask
 
@@ -72,39 +72,43 @@ module tb_operacional;
     clk = 0;
     rst = 1;
     key_valid = 0;
-    sensor_de_contato = 0;
     botao_interno = 0;
     setup_end = 0;
     data_setup_new = '0;
-    #20;
-
-    rst = 0;
     sensor_de_contato = 1; // Porta fechada (sensor ativo)
     #20;
 
+    rst = 0;
+
     // Digitar senha correta padrão: 1-2-3-4
     digitar_senha(4'd1, 4'd2, 4'd3, 4'd4);
-    #100;
-
+	#20
+    
     // Teste atualização de senha master
-    digitar_senha(4'd5, 4'd6, 4'd7, 4'd8); // Senha padrão
-    #100;
-
-    // Encerrar simulação
-    #500;
+    digitar_senha(4'd5, 4'd6, 4'd7, 4'd8); // atualiza a master para 5678
+    #20;
+    
+    digitar_senha(4'd0, 4'd0, 4'd0, 4'd0); 
+    
+    sensor_de_contato = 0;
+    repeat (6000) @(posedge clk);  // Espera 6000 ciclos
+    
+    sensor_de_contato = 1;
+    repeat (1000) @(posedge clk); 
     $finish;
   end
 
         initial begin
-        $display("\n==== Monitor de Sinais ====");
-        $display("Formato: T=tempo | key_code | key_valid | bip_status | tranca | master_pin | pin1..4 | BCD | Estado FSM\n");
-        $monitor("T=%0t | key_code=%h key_valid=%b | bip=%b | bip_time=%0d | tranca=%0d | master_pin=[%b %0d %0d %0d %0d] | pin1=[%b %0d %0d %0d %0d] | pin2=[%b %0d %0d %0d %0d] | pin3=[%b %0d %0d %0d %0d] | pin4=[%b %0d %0d %0d %0d] | BCD=[%0d %0d %0d %0d %0d %0d] | estado=%s",
+          $display("\n==== Monitor de Sinais Operacional====");
+          $display("Formato: T=tempo | key_code | key_valid | bip_status | tranca | sensor_de_contato | master_pin | pin1..4 | BCD | Estado FSM\n");
+        $monitor("T=%0t | key_code=%h key_valid=%b | bip=%b | bip_time=%0d | tranca=%0d| sensor_de_contato=%b | master_pin=[%b %0d %0d %0d %0d] | pin1=[%b %0d %0d %0d %0d] | pin2=[%b %0d %0d %0d %0d] | pin3=[%b %0d %0d %0d %0d] | pin4=[%b %0d %0d %0d %0d] | BCD=[%0d %0d %0d %0d %0d %0d] | estado=%s",
             $time,
             key_code,
             key_valid,
             dut.bip,
             dut.data_setup_old.bip_time,
             dut.tranca,
+            sensor_de_contato,
 
             // master_pin
             dut.data_setup_old.master_pin.status,

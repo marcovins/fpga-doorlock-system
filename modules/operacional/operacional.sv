@@ -48,7 +48,6 @@ module operacional (
 
     // Sinais e saídas de submódulos
     logic senha_fail;
-    logic senha_pin;
     logic senha_master_update, senha_master, senha_padrao;
     pinPac_t pin_montado;
 
@@ -65,6 +64,11 @@ module operacional (
     logic key_valid_d;
     logic key_valid_rise;
 
+    logic trigger_pulse;
+    bcdPac_t bcd_out_reg;
+
+    assign bcd_out = bcd_out_reg;
+
     assign key_valid_rise = key_valid && !key_valid_d;
     
     always_ff @(posedge clk or posedge rst) begin
@@ -74,75 +78,135 @@ module operacional (
             counter_travamento <= 0;
             counter_bip <= 0;
             setup_default();
-            bcd_out <= '{default: 4'b1111}; // Apaga o display
             key_valid_d <= 1'b0;
+            bcd_enable <= 1;
+            tempo_espera <= 0;
+            bip <= 0;
+            setup_on <= 0;
+            bcd_out_reg <= {4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF}; // Apaga o display
             ESTADO_ATUAL <= RESET;
         end
         else begin
             key_valid_d <= key_valid;
+            bcd_enable = trigger_pulse;
 
             case (ESTADO_ATUAL)
                 RESET: begin
-                    if (sensor_de_contato)
+                    if (sensor_de_contato) begin
+                        tranca <= 1;
+                        bcd_enable <= 1;
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF}; // Apaga o display
                         ESTADO_ATUAL <= MONTAR_PIN;
+                    end else begin
+                        bcd_enable <= 0;
+                    end
                 end
 
                 MONTAR_PIN: begin
-                    if (key_code == 4'hF && key_valid_rise)
-                        ESTADO_ATUAL <= VERIFICAR_SENHA;
-                    else if (botao_interno)
+                    if (key_valid_rise)begin
+                        bcd_enable <= 1;
+                        if(key_code == 4'hF) begin
+                            bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF};
+                            ESTADO_ATUAL <= VERIFICAR_SENHA;
+                        end else if (key_code < 4'b1010) begin
+                            bcd_out_reg.BCD5 <= (pin_montado.digit1 < 4'b1010) ? pin_montado.digit1 : 4'b1111;
+                            bcd_out_reg.BCD4 <= (pin_montado.digit2 < 4'b1010) ? pin_montado.digit2 : 4'b1111;
+                            bcd_out_reg.BCD3 <= (pin_montado.digit3 < 4'b1010) ? pin_montado.digit3 : 4'b1111;
+                            bcd_out_reg.BCD2 <= (pin_montado.digit4 < 4'b1010) ? pin_montado.digit4 : 4'b1111;
+                        end
+                end else if (botao_interno)begin
+                        bcd_enable <= 1;
+                        bcd_out_reg <= {4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF};
                         ESTADO_ATUAL <= TRAVA_OFF;
+                end else begin
+                        bcd_enable <= 0;
+                    end
                 end
 
                 VERIFICAR_SENHA: begin
                     if (senha_fail) begin
                         if (tentativas < 5)
                             tentativas <= tentativas + 1;
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'b1010, 4'b1010, 4'b1010, 4'b1010};
                         ESTADO_ATUAL <= ESPERA;
-                    end else begin
+                    end 
+                        
+                    else if (senha_master && !senha_master_update)begin
                         tentativas <= 0;
-                        if (senha_master && !senha_master_update)
-                            ESTADO_ATUAL <= UPDATE_MASTER;
-                        else if (senha_master && senha_master_update)
-                            ESTADO_ATUAL <= SETUP;
-                        else if (senha_padrao)
-                            ESTADO_ATUAL <= TRAVA_OFF;
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF};
+                        ESTADO_ATUAL <= UPDATE_MASTER;
                     end
+
+                    else if (senha_master && senha_master_update)begin
+                        tentativas <= 0;
+                        setup_on <= 1;
+                        ESTADO_ATUAL <= SETUP;
+                    end
+
+                    else if (senha_padrao)begin
+                        tentativas <= 0;
+                        bcd_out_reg <= {4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF};
+                        tranca <= 0;
+                        ESTADO_ATUAL <= TRAVA_OFF;
+                    end
+
+                    else begin
+                        if (tentativas < 3)
+                            tempo_espera <= UM_SEG;
+                        else if (tentativas == 3)
+                            tempo_espera <= DEZ_SEG;
+                        else if (tentativas == 4)
+                            tempo_espera <= VINTE_SEG;
+                        else
+                            tempo_espera <= TRINTA_SEG;
+                    end
+
                 end
 
                 ESPERA: begin
                     counter_espera <= counter_espera + 1;
                     if (counter_espera == tempo_espera) begin
-                        counter_espera <= 0;             
+                        counter_espera <= 0;
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF};           
                         ESTADO_ATUAL <= MONTAR_PIN;
                     end
                 end
 
                 SETUP: begin
-                  if (setup_end)begin
-                        data_setup_old_reg <= data_setup_new;
-                        ESTADO_ATUAL <= MONTAR_PIN;
-                  end
-                end
-
-                UPDATE_MASTER: begin
-                    if (novo_master_pin.status) begin
-                        data_setup_old_reg.master_pin <= novo_master_pin;
+                    if (setup_end)begin
+                        setup_on <= 0;
                         ESTADO_ATUAL <= MONTAR_PIN;
                     end
                 end
 
+                UPDATE_MASTER: begin
+                    if (novo_master_pin.status) begin
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF};
+                        data_setup_old_reg.master_pin <= novo_master_pin;
+                        ESTADO_ATUAL <= MONTAR_PIN;
+                    end else if (key_valid_rise && key_code < 4'b1010) begin
+                            bcd_out_reg.BCD5 <= (pin_montado.digit1 < 4'b1010) ? pin_montado.digit1 : 4'b1111;
+                            bcd_out_reg.BCD4 <= (pin_montado.digit2 < 4'b1010) ? pin_montado.digit2 : 4'b1111;
+                            bcd_out_reg.BCD3 <= (pin_montado.digit3 < 4'b1010) ? pin_montado.digit3 : 4'b1111;
+                            bcd_out_reg.BCD2 <= (pin_montado.digit4 < 4'b1010) ? pin_montado.digit4 : 4'b1111;
+                        end
+                end
+
                 TRAVA_OFF: begin
                     tentativas <= 0;
-                    bcd_out <= '{default: 4'b1111}; // Apaga o display
                     ESTADO_ATUAL <= PORTA_FECHADA;
                 end
 
                 PORTA_FECHADA: begin
+                    if(bcd_enable)
+                        bcd_enable <= 0;
                     if (!sensor_de_contato)
                         ESTADO_ATUAL <= PORTA_ABERTA;
                     else if ((counter_travamento >= data_setup_old_reg.tranca_aut_time) || botao_interno) begin
                         counter_travamento <= 0;
+                        bcd_out_reg <= {4'b1010, 4'b1010, 4'hF, 4'hF, 4'hF, 4'hF};
+                        bcd_enable <= 1;
+                        tranca <= 1;
                         ESTADO_ATUAL <= TRAVA_ON;
                     end
                     else if (counter_travamento < data_setup_old_reg.tranca_aut_time)
@@ -153,10 +217,15 @@ module operacional (
                     if (sensor_de_contato) begin
                         counter_travamento <= 0;
                         counter_bip <= 0;
+                        bip <= 0;
                         ESTADO_ATUAL <= PORTA_FECHADA;
                     end
+
                     else if (counter_bip < data_setup_old_reg.bip_time)
                         counter_bip <= counter_bip + 1;
+
+                    else if ((counter_bip >= data_setup_old_reg.bip_time) && data_setup_old_reg.bip_status)
+                        bip <= 1;
 
                 end
 
@@ -167,57 +236,6 @@ module operacional (
             endcase
         end
 
-    end
-
-    always_comb begin
-        case (ESTADO_ATUAL)
-            RESET: begin
-                tempo_espera = 0;
-                tranca = 0;
-                bip = 0;
-                setup_on = 0;
-                bcd_enable = 1;
-            end
-
-            MONTAR_PIN: begin
-                bcd_enable = 1;
-                tranca = 1;
-                setup_on = 0;
-            end
-
-            VERIFICAR_SENHA: begin
-                if (tentativas < 3)
-                    tempo_espera = UM_SEG;
-                else if (tentativas == 3)
-                    tempo_espera = DEZ_SEG;
-                else if (tentativas == 4)
-                    tempo_espera = VINTE_SEG;
-                else
-                    tempo_espera = TRINTA_SEG;
-            end
-
-            PORTA_FECHADA:
-                bip = 0;
-
-            PORTA_ABERTA: begin
-                if ((counter_bip >= data_setup_old_reg.bip_time) && data_setup_old_reg.bip_status)
-                    bip = 1;
-            end
-
-            TRAVA_OFF: begin
-                bcd_enable = 1;
-                tranca = 0;
-            end
-
-            TRAVA_ON:
-                tranca = 1;
-
-            SETUP:
-                setup_on = 1;
-
-            default:
-                bcd_enable = 0;
-        endcase
     end
 
     montar_pin inst_montar_pin (
@@ -235,7 +253,6 @@ module operacional (
         .data_setup(data_setup_old),
         .senha_fail(senha_fail),
         .senha_padrao(senha_padrao),
-        .senha_pin(senha_pin),
         .senha_master(senha_master),
         .senha_master_update(senha_master_update)
     );
