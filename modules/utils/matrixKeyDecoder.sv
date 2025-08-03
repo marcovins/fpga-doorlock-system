@@ -56,10 +56,10 @@ module matrixKeyDecoder (
   // FSM + varredura de linha
   always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
-      state       <= STATE_IDLE;
-      debounce_cnt<= 0;
-      tecla_valid   <= 0;
-      tecla_value   <= 0;
+      state <= STATE_IDLE;
+      debounce_cnt <= 0;
+      tecla_valid <= 0;
+      tecla_value <= 0;
       current_row <= 0;
     end else begin
       // Scan de linhas

@@ -15,6 +15,24 @@ module SixDigit7SegCtrl (
     output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 );
 
+  // Registradores internos para armazenar os valores dos BCDs
+  bcdPac_t bcd_packet_reg;
+
+  // Bloco sequencial: atualiza os registradores com base em enable
+  always_ff @(posedge clk or posedge rst) begin
+    if (rst) begin
+      bcd_packet_reg.BCD0 <= 4'd0;
+      bcd_packet_reg.BCD1 <= 4'd0;
+      bcd_packet_reg.BCD2 <= 4'd0;
+      bcd_packet_reg.BCD3 <= 4'd0;
+      bcd_packet_reg.BCD4 <= 4'd0;
+      bcd_packet_reg.BCD5 <= 4'd0;
+    end else if (enable) begin
+      bcd_packet_reg <= bcd_packet;
+    end
+  end
+
+  // Conversor BCD para 7 segmentos (combinacional pura)
   function logic [6:0] bcd_to_7seg(input logic [3:0] hex);
     case (hex)
       4'h0: bcd_to_7seg = 7'b1000000;
@@ -36,25 +54,14 @@ module SixDigit7SegCtrl (
     endcase
   endfunction
 
-  always_ff @(posedge clk or posedge rst) begin
-    if (rst) begin
-      HEX0 <= 7'b1111111;
-      HEX1 <= 7'b1111111;
-      HEX2 <= 7'b1111111;
-      HEX3 <= 7'b1111111;
-      HEX4 <= 7'b1111111;
-      HEX5 <= 7'b1111111;
-    end else begin
-      if (enable) begin
-        HEX0 <= bcd_to_7seg(bcd_packet.BCD0);
-        HEX1 <= bcd_to_7seg(bcd_packet.BCD1);
-        HEX2 <= bcd_to_7seg(bcd_packet.BCD2);
-        HEX3 <= bcd_to_7seg(bcd_packet.BCD3);
-        HEX4 <= bcd_to_7seg(bcd_packet.BCD4);
-        HEX5 <= bcd_to_7seg(bcd_packet.BCD5);
-      end
-    end
-
+  // Bloco combinacional: gera os sinais HEX* a partir dos registradores
+  always_comb begin
+    HEX0 = bcd_to_7seg(bcd_packet_reg.BCD0);
+    HEX1 = bcd_to_7seg(bcd_packet_reg.BCD1);
+    HEX2 = bcd_to_7seg(bcd_packet_reg.BCD2);
+    HEX3 = bcd_to_7seg(bcd_packet_reg.BCD3);
+    HEX4 = bcd_to_7seg(bcd_packet_reg.BCD4);
+    HEX5 = bcd_to_7seg(bcd_packet_reg.BCD5);
   end
 
 endmodule
