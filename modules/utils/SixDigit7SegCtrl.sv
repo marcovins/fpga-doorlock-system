@@ -36,16 +36,25 @@ module SixDigit7SegCtrl (
     endcase
   endfunction
 
-  // Atualiza os displays apenas se enable estiver ativo
-  always_comb begin
-    if (enable) begin
-      HEX0 = bcd_to_7seg(bcd_packet.BCD0);
-      HEX1 = bcd_to_7seg(bcd_packet.BCD1);
-      HEX2 = bcd_to_7seg(bcd_packet.BCD2);
-      HEX3 = bcd_to_7seg(bcd_packet.BCD3);
-      HEX4 = bcd_to_7seg(bcd_packet.BCD4);
-      HEX5 = bcd_to_7seg(bcd_packet.BCD5);
-    end
+  always_ff @(posedge clk or posedge rst) begin
+    if (reset) begin
+      HEX0 <= 7'b1111111;
+      HEX1 <= 7'b1111111;
+      HEX2 <= 7'b1111111;
+      HEX3 <= 7'b1111111;
+      HEX4 <= 7'b1111111;
+      HEX5 <= 7'b1111111;
+    end else {
+      if (enable) begin
+        HEX0 <= bcd_to_7seg(bcd_packet.BCD0);
+        HEX1 <= bcd_to_7seg(bcd_packet.BCD1);
+        HEX2 <= bcd_to_7seg(bcd_packet.BCD2);
+        HEX3 <= bcd_to_7seg(bcd_packet.BCD3);
+        HEX4 <= bcd_to_7seg(bcd_packet.BCD4);
+        HEX5 <= bcd_to_7seg(bcd_packet.BCD5);
+      end
+    }
+
   end
 
 endmodule

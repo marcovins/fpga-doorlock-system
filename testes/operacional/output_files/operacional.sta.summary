@@ -2,4 +2,100 @@
 Timing Analyzer Summary
 ------------------------------------------------------------
 
+Type  : Slow 1100mV 85C Model Setup 'CLOCK_50'
+Slack : -5.534
+TNS   : -158.013
+
+Type  : Slow 1100mV 85C Model Setup 'divfreq:my_divfreq|clk_i'
+Slack : -2.483
+TNS   : -103.012
+
+Type  : Slow 1100mV 85C Model Hold 'divfreq:my_divfreq|clk_i'
+Slack : 0.275
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Hold 'CLOCK_50'
+Slack : 0.377
+TNS   : 0.000
+
+Type  : Slow 1100mV 85C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -0.640
+TNS   : -36.687
+
+Type  : Slow 1100mV 85C Model Minimum Pulse Width 'divfreq:my_divfreq|clk_i'
+Slack : -0.394
+TNS   : -29.767
+
+Type  : Slow 1100mV 0C Model Setup 'CLOCK_50'
+Slack : -5.491
+TNS   : -152.292
+
+Type  : Slow 1100mV 0C Model Setup 'divfreq:my_divfreq|clk_i'
+Slack : -2.436
+TNS   : -100.252
+
+Type  : Slow 1100mV 0C Model Hold 'divfreq:my_divfreq|clk_i'
+Slack : 0.275
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Hold 'CLOCK_50'
+Slack : 0.378
+TNS   : 0.000
+
+Type  : Slow 1100mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -0.645
+TNS   : -33.809
+
+Type  : Slow 1100mV 0C Model Minimum Pulse Width 'divfreq:my_divfreq|clk_i'
+Slack : -0.394
+TNS   : -28.851
+
+Type  : Fast 1100mV 85C Model Setup 'CLOCK_50'
+Slack : -3.297
+TNS   : -68.516
+
+Type  : Fast 1100mV 85C Model Setup 'divfreq:my_divfreq|clk_i'
+Slack : -1.148
+TNS   : -44.221
+
+Type  : Fast 1100mV 85C Model Hold 'divfreq:my_divfreq|clk_i'
+Slack : 0.092
+TNS   : 0.000
+
+Type  : Fast 1100mV 85C Model Hold 'CLOCK_50'
+Slack : 0.202
+TNS   : 0.000
+
+Type  : Fast 1100mV 85C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -0.701
+TNS   : -25.376
+
+Type  : Fast 1100mV 85C Model Minimum Pulse Width 'divfreq:my_divfreq|clk_i'
+Slack : 0.016
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Setup 'CLOCK_50'
+Slack : -2.921
+TNS   : -58.814
+
+Type  : Fast 1100mV 0C Model Setup 'divfreq:my_divfreq|clk_i'
+Slack : -0.998
+TNS   : -37.151
+
+Type  : Fast 1100mV 0C Model Hold 'divfreq:my_divfreq|clk_i'
+Slack : 0.078
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Hold 'CLOCK_50'
+Slack : 0.190
+TNS   : 0.000
+
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'CLOCK_50'
+Slack : -0.730
+TNS   : -30.243
+
+Type  : Fast 1100mV 0C Model Minimum Pulse Width 'divfreq:my_divfreq|clk_i'
+Slack : 0.057
+TNS   : 0.000
+
 ------------------------------------------------------------

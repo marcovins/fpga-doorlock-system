@@ -318,7 +318,7 @@ operacional myOperacional (
 	.bcd_out(bcdPac),				// output 	bcdPac_t
 	.bcd_enable(en_bcdPac),		// output 	logic
 	.tranca(LEDR[0]),				// output 	logic
-	.bip(LEDR[1]),					// output 	logic
+	.bip(LEDR[1]),						// output 	logic
 	.setup_on(LEDR[9]),			// output 	logic
 	.setup_end(!KEY[3]),			// input 	logic
 	.data_setup_old(setupPacOld),	// output 	setupPac_t

@@ -319,7 +319,7 @@ verificar_senha (
 				.senha_master_update(LEDR[4])
 );
 
-
+assign LEDR[5] = data_setup.master_pin.status;
 assign LEDR[0] = pinPac.status;
 
 

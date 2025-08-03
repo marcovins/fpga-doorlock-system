@@ -1,6 +1,6 @@
 Flow report for operacional
-Fri Jul 25 15:25:23 2025
-Quartus Prime Version 23.1std.1 Build 993 05/14/2024 SC Lite Edition
+Fri Aug  1 18:07:57 2025
+Quartus Prime Version 21.1.1 Build 850 06/23/2022 SJ Lite Edition
 
 
 ---------------------
@@ -21,7 +21,7 @@ Quartus Prime Version 23.1std.1 Build 993 05/14/2024 SC Lite Edition
 ----------------
 ; Legal Notice ;
 ----------------
-Copyright (C) 2024  Intel Corporation. All rights reserved.
+Copyright (C) 2022  Intel Corporation. All rights reserved.
 Your use of Intel Corporation's design tools, logic functions 
 and other software and tools, and any partner logic 
 functions, and any output files from any of the foregoing 
@@ -38,29 +38,29 @@ https://fpgasoftware.intel.com/eula.
 
 
 
-+----------------------------------------------------------------------------------+
-; Flow Summary                                                                     ;
-+---------------------------------+------------------------------------------------+
-; Flow Status                     ; Successful - Fri Jul 25 15:25:14 2025          ;
-; Quartus Prime Version           ; 23.1std.1 Build 993 05/14/2024 SC Lite Edition ;
-; Revision Name                   ; operacional                                    ;
-; Top-level Entity Name           ; DE1_SOC_golden_top                             ;
-; Family                          ; Cyclone V                                      ;
-; Device                          ; 5CSEMA5F31C6                                   ;
-; Timing Models                   ; Final                                          ;
-; Logic utilization (in ALMs)     ; 1 / 32,070 ( < 1 % )                           ;
-; Total registers                 ; 0                                              ;
-; Total pins                      ; 241 / 457 ( 53 % )                             ;
-; Total virtual pins              ; 0                                              ;
-; Total block memory bits         ; 0 / 4,065,280 ( 0 % )                          ;
-; Total DSP Blocks                ; 0 / 87 ( 0 % )                                 ;
-; Total HSSI RX PCSs              ; 0                                              ;
-; Total HSSI PMA RX Deserializers ; 0                                              ;
-; Total HSSI TX PCSs              ; 0                                              ;
-; Total HSSI PMA TX Serializers   ; 0                                              ;
-; Total PLLs                      ; 0 / 6 ( 0 % )                                  ;
-; Total DLLs                      ; 0 / 4 ( 0 % )                                  ;
-+---------------------------------+------------------------------------------------+
++-------------------------------------------------------------------------------+
+; Flow Summary                                                                  ;
++---------------------------------+---------------------------------------------+
+; Flow Status                     ; Successful - Fri Aug  1 18:07:42 2025       ;
+; Quartus Prime Version           ; 21.1.1 Build 850 06/23/2022 SJ Lite Edition ;
+; Revision Name                   ; operacional                                 ;
+; Top-level Entity Name           ; DE1_SOC_golden_top                          ;
+; Family                          ; Cyclone V                                   ;
+; Device                          ; 5CSEMA5F31C6                                ;
+; Timing Models                   ; Final                                       ;
+; Logic utilization (in ALMs)     ; 68 / 32,070 ( < 1 % )                       ;
+; Total registers                 ; 109                                         ;
+; Total pins                      ; 241 / 457 ( 53 % )                          ;
+; Total virtual pins              ; 0                                           ;
+; Total block memory bits         ; 0 / 4,065,280 ( 0 % )                       ;
+; Total DSP Blocks                ; 0 / 87 ( 0 % )                              ;
+; Total HSSI RX PCSs              ; 0                                           ;
+; Total HSSI PMA RX Deserializers ; 0                                           ;
+; Total HSSI TX PCSs              ; 0                                           ;
+; Total HSSI PMA TX Serializers   ; 0                                           ;
+; Total PLLs                      ; 0 / 6 ( 0 % )                               ;
+; Total DLLs                      ; 0 / 4 ( 0 % )                               ;
++---------------------------------+---------------------------------------------+
 
 
 +-----------------------------------------+
@@ -68,7 +68,7 @@ https://fpgasoftware.intel.com/eula.
 +-------------------+---------------------+
 ; Option            ; Setting             ;
 +-------------------+---------------------+
-; Start date & time ; 07/25/2025 15:24:22 ;
+; Start date & time ; 08/01/2025 18:06:00 ;
 ; Main task         ; Compilation         ;
 ; Revision Name     ; operacional         ;
 +-------------------+---------------------+
@@ -79,7 +79,7 @@ https://fpgasoftware.intel.com/eula.
 +-------------------------------------+----------------------------------------+---------------+--------------------+------------+
 ; Assignment Name                     ; Value                                  ; Default Value ; Entity Name        ; Section Id ;
 +-------------------------------------+----------------------------------------+---------------+--------------------+------------+
-; COMPILER_SIGNATURE_ID               ; 66160496611145.175346786104300         ; --            ; --                 ; --         ;
+; COMPILER_SIGNATURE_ID               ; 110299157511324.175408236003720        ; --            ; --                 ; --         ;
 ; MAX_CORE_JUNCTION_TEMP              ; 85                                     ; --            ; --                 ; --         ;
 ; MIN_CORE_JUNCTION_TEMP              ; 0                                      ; --            ; --                 ; --         ;
 ; PARTITION_COLOR                     ; -- (Not supported for targeted family) ; --            ; DE1_SOC_golden_top ; Top        ;
@@ -97,11 +97,11 @@ https://fpgasoftware.intel.com/eula.
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 ; Module Name          ; Elapsed Time ; Average Processors Used ; Peak Virtual Memory ; Total CPU Time (on all processors) ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
-; Analysis & Synthesis ; 00:00:08     ; 1.0                     ; 4799 MB             ; 00:00:17                           ;
-; Fitter               ; 00:00:37     ; 1.0                     ; 6765 MB             ; 00:01:21                           ;
-; Assembler            ; 00:00:06     ; 1.0                     ; 5234 MB             ; 00:00:06                           ;
-; Timing Analyzer      ; 00:00:08     ; 1.0                     ; 5367 MB             ; 00:00:08                           ;
-; Total                ; 00:00:59     ; --                      ; --                  ; 00:01:52                           ;
+; Analysis & Synthesis ; 00:00:16     ; 1.0                     ; 4841 MB             ; 00:00:34                           ;
+; Fitter               ; 00:01:13     ; 1.0                     ; 6541 MB             ; 00:01:59                           ;
+; Assembler            ; 00:00:11     ; 1.0                     ; 4890 MB             ; 00:00:10                           ;
+; Timing Analyzer      ; 00:00:14     ; 1.1                     ; 5166 MB             ; 00:00:14                           ;
+; Total                ; 00:01:54     ; --                      ; --                  ; 00:02:57                           ;
 +----------------------+--------------+-------------------------+---------------------+------------------------------------+
 
 
@@ -110,10 +110,10 @@ https://fpgasoftware.intel.com/eula.
 +----------------------+------------------+------------+------------+----------------+
 ; Module Name          ; Machine Hostname ; OS Name    ; OS Version ; Processor type ;
 +----------------------+------------------+------------+------------+----------------+
-; Analysis & Synthesis ; G7               ; Windows 10 ; 10.0       ; x86_64         ;
-; Fitter               ; G7               ; Windows 10 ; 10.0       ; x86_64         ;
-; Assembler            ; G7               ; Windows 10 ; 10.0       ; x86_64         ;
-; Timing Analyzer      ; G7               ; Windows 10 ; 10.0       ; x86_64         ;
+; Analysis & Synthesis ; DSK07LBAUTO-CG   ; Windows 10 ; 10.0       ; x86_64         ;
+; Fitter               ; DSK07LBAUTO-CG   ; Windows 10 ; 10.0       ; x86_64         ;
+; Assembler            ; DSK07LBAUTO-CG   ; Windows 10 ; 10.0       ; x86_64         ;
+; Timing Analyzer      ; DSK07LBAUTO-CG   ; Windows 10 ; 10.0       ; x86_64         ;
 +----------------------+------------------+------------+------------+----------------+
 
 

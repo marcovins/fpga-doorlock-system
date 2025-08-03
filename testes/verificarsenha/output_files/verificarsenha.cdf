@@ -6,7 +6,7 @@ JedecChain;
 	P ActionCode(Ign)
 		Device PartName(SOCVHPS) MfrSpec(OpMask(0));
 	P ActionCode(Cfg)
-		Device PartName(5CSEMA5F31) Path("D:/Users/202311250013/Documents/testes/verificarsenha/output_files/") File("verificarsenha.sof") MfrSpec(OpMask(1));
+		Device PartName(5CSEMA5F31) Path("D:/Users/202311250013/Documents/fpga-doorlock-system/testes/verificarsenha/output_files/") File("verificarsenha.sof") MfrSpec(OpMask(1));
 
 ChainEnd;
 
