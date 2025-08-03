@@ -37,14 +37,14 @@ module SixDigit7SegCtrl (
   endfunction
 
   always_ff @(posedge clk or posedge rst) begin
-    if (reset) begin
+    if (rst) begin
       HEX0 <= 7'b1111111;
       HEX1 <= 7'b1111111;
       HEX2 <= 7'b1111111;
       HEX3 <= 7'b1111111;
       HEX4 <= 7'b1111111;
       HEX5 <= 7'b1111111;
-    end else {
+    end else begin
       if (enable) begin
         HEX0 <= bcd_to_7seg(bcd_packet.BCD0);
         HEX1 <= bcd_to_7seg(bcd_packet.BCD1);
@@ -53,7 +53,7 @@ module SixDigit7SegCtrl (
         HEX4 <= bcd_to_7seg(bcd_packet.BCD4);
         HEX5 <= bcd_to_7seg(bcd_packet.BCD5);
       end
-    }
+    end
 
   end
 
