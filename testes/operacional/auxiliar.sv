@@ -666,14 +666,16 @@ module matrixKeyDecoder (
   } state_t;
 
   state_t state;
-  int debounce_cnt;
+  logic [6:0] debounce_cnt;
   localparam int DEBOUNCE_MAX = 50;
 
   logic [1:0] current_row;
   logic [3:0] active_cols;
   logic one_pressed;
 
-  assign one_pressed = ((~col_matrix[0] + ~col_matrix[1] + ~col_matrix[2] + ~col_matrix[3]) == 1);
+  assign one_pressed = (($countones(~col_matrix)) == 1);
+
+  logic [3:0] lin_temp;
 
   // Codifica (linha, coluna) para número
   function logic [3:0] matrix_to_number(input logic [5:0] code);
@@ -706,40 +708,42 @@ module matrixKeyDecoder (
       tecla_valid <= 0;
       tecla_value <= 0;
       current_row <= 0;
+      lin_matrix <= 4'b1111;
     end else begin
       
       case (state)
         STATE_IDLE: begin
+          lin_temp = 4'b1111;
+          lin_temp[current_row] = 1'b0;
+          lin_matrix <= lin_temp;
+          
           if (one_pressed) begin
-                state <= STATE_DEBOUNCE;
-            end else begin
-                if (current_row == 2'b11)
-                  current_row <= 2'b00;
-                else
-                  current_row <= current_row + 1;
-                if (lin_matrix == 4'b1111) begin
-                  lin_matrix[current_row] <= 1'b0;
-                  debounce_cnt <= 0;
-                  tecla_valid <= 0;
-                end else begin
-                  lin_matrix <= 4'b1111;
-                end
+            debounce_cnt <= 0;
+            state <= STATE_DEBOUNCE;
+          end else begin
+              current_row <= current_row + 1;
             end
         end
 
         STATE_DEBOUNCE: begin
+          if (!debounce_cnt)
+          lin_temp = 4'b1111;
+          lin_temp[current_row] = 1'b0;
+          lin_matrix <= lin_temp;
+          
           if (one_pressed) begin
             debounce_cnt <= debounce_cnt + 1;
             if (debounce_cnt >= DEBOUNCE_MAX)
               state <= STATE_ACTIVE;
           end else begin
+            debounce_cnt <= 0;
             state <= STATE_IDLE;
           end
         end
 
         STATE_ACTIVE: begin
           tecla_valid <= 1;
-          tecla_value <= matrix_to_number({~current_row, col_matrix});
+          tecla_value <= matrix_to_number({~current_row + 2, col_matrix});
           state <= STATE_WAIT_RELEASE;
         end
 
@@ -749,6 +753,8 @@ module matrixKeyDecoder (
             state <= STATE_IDLE;
           end
         end
+
+        default: state <= STATE_IDLE;
       endcase
     end
   end
