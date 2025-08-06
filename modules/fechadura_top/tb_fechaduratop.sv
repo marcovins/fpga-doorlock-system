@@ -141,6 +141,7 @@ module tb_FechaduraTop;
     $display("--- Teclando: * ---");
     press_key(4'hf);
     #200;
+    
     $display("--- Teclando: 6 ---");
     press_key(4'd6);
     $display("--- Teclando: 7 ---");
@@ -152,7 +153,59 @@ module tb_FechaduraTop;
     $display("--- Teclando: * ---");
     press_key(4'hf);
     #200
+    /*
+    $display("--- Testando PIN1 ---");
+    $display("--- Teclando: 0 ---");
+    press_key(4'd0);
+    $display("--- Teclando: 0 ---");
+    press_key(4'd0);
+    $display("--- Teclando: 0 ---");
+    press_key(4'd0);
+    $display("--- Teclando: 0 ---");
+    press_key(4'd0);
+    $display("--- Teclando: * ---");
+    press_key(4'hf);
+    sensor_de_contato = 0;
+    #100
+    sensor_de_contato = 1;
+    #200
     
+    $display("--- Testando PIN2(desativado) ---");
+    $display("--- Teclando: 2 ---");
+    press_key(4'd2);
+    $display("--- Teclando: 2 ---");
+    press_key(4'd2);
+    $display("--- Teclando: 2 ---");
+    press_key(4'd2);
+    $display("--- Teclando: 2 ---");
+    press_key(4'd2);
+    $display("--- Teclando: * ---");
+    press_key(4'hf);
+    #200
+    */
+    wait (DUT.m_operacional.ESTADO_ATUAL.name() == "MONTAR_PIN");
+    
+    $display("--- Testando Setup(novo_master) ---");
+    $display("--- Teclando: 6 ---");
+    press_key(4'd6);
+    $display("--- Teclando: 7 ---");
+    press_key(4'd7);
+    $display("--- Teclando: 8 ---");
+    press_key(4'd8);
+    $display("--- Teclando: 9 ---");
+    press_key(4'd9);
+    $display("--- Teclando: * ---");
+    press_key(4'hf);
+    wait (DUT.m_setup.ESTADO_ATUAL.name() != "IDLE");
+    
+    $display("--- Iniciando setup ---");
+    $display("--- Teclando: 6 ---");
+    press_key(4'd6);
+    $display("--- Teclando: 7 ---");
+    press_key(4'd7);
+    $display("--- Teclando: * ---");
+    press_key(4'hf);
+    wait (DUT.m_setup.ESTADO_ATUAL.name() != "ATIVAR_BIP");
     
     $display("=== FIM DOS TESTES ===");
     $display("master_pin=[%d %d %d %d]",
@@ -160,12 +213,22 @@ module tb_FechaduraTop;
     DUT.m_operacional.data_setup_old.master_pin.digit2,
     DUT.m_operacional.data_setup_old.master_pin.digit3,
     DUT.m_operacional.data_setup_old.master_pin.digit4);
+    $display("pin1=[%d %d %d %d]",
+    DUT.m_operacional.data_setup_old.pin1.digit1,
+    DUT.m_operacional.data_setup_old.pin1.digit2,
+    DUT.m_operacional.data_setup_old.pin1.digit3,
+    DUT.m_operacional.data_setup_old.pin1.digit4);
+    $display("pin2=[%d %d %d %d]",
+    DUT.m_operacional.data_setup_old.pin2.digit1,
+    DUT.m_operacional.data_setup_old.pin2.digit2,
+    DUT.m_operacional.data_setup_old.pin2.digit3,
+    DUT.m_operacional.data_setup_old.pin2.digit4);
 
     $finish;
   end
 
   initial begin
-    $monitor("Time=%0t | rst=%b | setup_on=%b | setup_end=%b | tranca=%b | bip=%b | key_valid=%b | key_code=%d | bcd_enable=%b | setup_state=%s | op_state=%s | matrix_state=%s | cnt_debounce=%d | displays=[%d %d %d %d %d %d] | montar_pin_state=%s | verificar_senha_state=%s | update_master_state=%s",
+    $monitor("Time=%0t | rst=%b | setup_on=%b | setup_end=%b | tranca=%b | bip=%b | key_valid=%b | key_code=%d | bcd_enable=%b | setup_state=%s | op_state=%s | matrix_state=%s | cnt_debounce=%d | displays=[%d %d %d %d %d %d] | senha_fail=%b | senha_padrao=%b | senha_master=%b | senha_master_update=%b |  montar_pin_state=%s | verificar_senha_state=%s | update_master_state=%s",
                $time,
                DUT.rst,
                DUT.setup_on,
@@ -185,6 +248,10 @@ module tb_FechaduraTop;
                sevenseg_to_bcd(dispHex3),
                sevenseg_to_bcd(dispHex4),
                sevenseg_to_bcd(dispHex5),
+               DUT.m_operacional.senha_fail,
+               DUT.m_operacional.senha_padrao,
+               DUT.m_operacional.senha_master,
+               DUT.m_operacional.senha_master_update,
                DUT.m_operacional.inst_montar_pin.ESTADO_ATUAL.name(),
                DUT.m_operacional.inst_verificar_senha.estado.name(),
                DUT.m_operacional.inst_update_master.ESTADO_ATUAL.name()

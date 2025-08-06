@@ -241,7 +241,8 @@ module operacional (
                     else if (senha_master && senha_master_update)begin
                         tentativas <= 0;
                         setup_on <= 1;
-                        ESTADO_ATUAL <= SETUP;
+                        if(!setup_end)
+                            ESTADO_ATUAL <= SETUP;
                     end
 
                     else if (senha_padrao)begin
@@ -449,13 +450,16 @@ output	logic 		setup_end
             case(ESTADO_ATUAL)
                 
                 IDLE:begin
-                    update_bcd( 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, bcd_out);
-
-                    if(bcd_enable)
-                        bcd_enable = 0;
-                    setup_end <= 1;
-                    if(setup_on)
+                    if(setup_on)begin
                         ESTADO_ATUAL <= RECEBER_DATA_SETUP_OLD;
+                        setup_end <= 0;
+                    end else begin
+                        update_bcd( 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, 4'hF, bcd_out);
+
+                        if(bcd_enable)
+                            bcd_enable = 0;
+                        setup_end <= 1;
+                    end
                 end
 
                 RECEBER_DATA_SETUP_OLD:begin
@@ -896,7 +900,7 @@ module verificar_senha (
     always_ff @(posedge clk or posedge rst) begin : controle_estados
         if (rst) begin
             estado <= RESETADO;
-				senha_fail <= 0;
+			senha_fail <= 0;
             senha_padrao <= 0;
             senha_master <= 0;
             senha_master_update <= 0;
@@ -957,6 +961,7 @@ module verificar_senha (
                             data_setup.pin4.status) begin
                     estado <= PIN_VALID;
                 end else begin
+                    senha_fail <= 1;
                     estado <= FAIL_FLAG;
                 end
             end
@@ -975,16 +980,14 @@ module verificar_senha (
 
             MASTER_OK: begin
                 if(!senha_master_update)begin
-							senha_master <= 1;
+					senha_master <= 1;
                      estado <= UPDATE_FLAG;
-					 end
+					end
             end
 
             MASTER_VALID: begin
-                if(senha_master)begin
-						  senha_master <= 1;
-                    estado <= SETUP_FLAG;
-					 end
+                senha_master <= 1;
+                estado <= SETUP_FLAG;
             end
 
             UPDATE_FLAG: begin
@@ -1243,7 +1246,6 @@ module matrixKeyDecoder (
 
         STATE_ACTIVE: begin
           tecla_valid <= 1;
-          $display("Current_row=%b",current_row);
           tecla_value <= matrix_to_number({current_row, col_matrix});
           state <= STATE_WAIT_RELEASE;
         end
