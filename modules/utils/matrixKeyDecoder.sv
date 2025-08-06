@@ -1,9 +1,9 @@
 module matrixKeyDecoder (
-  input  logic clk, reset,
+  input  logic        clk, reset,
   input  logic [3:0] col_matrix,
   output logic [3:0] lin_matrix,
   output logic [3:0] tecla_value,
-  output logic tecla_valid
+  output logic       tecla_valid
 );
 
   typedef enum logic [1:0] {
@@ -18,32 +18,41 @@ module matrixKeyDecoder (
   localparam int DEBOUNCE_MAX = 25;
 
   logic [1:0] current_row;
-  logic [3:0] active_cols;
+  logic [3:0] col_sampled;
   logic one_pressed;
 
-  assign one_pressed = (($countones(~col_matrix)) == 1);
+  // Drive da linha atual (combinacional)
+  always_comb begin
+    lin_matrix = 4'b1111;
+    lin_matrix[current_row] = 1'b0;
+  end
 
-  logic [3:0] lin_temp;
+
+  wire [1:0] num_uns = (col_matrix[0]) + (col_matrix[1]) + (col_matrix[2]) + (col_matrix[3]);
+  assign one_pressed = (num_uns == 3);
 
   // Codifica (linha, coluna) para número
   function logic [3:0] matrix_to_number(input logic [5:0] code);
     case (code)
-      6'b111110: matrix_to_number = 4'd1;
-      6'b111101: matrix_to_number = 4'd2;
-      6'b111011: matrix_to_number = 4'd3;
-      6'b110111: matrix_to_number = 4'd10;
-      6'b101110: matrix_to_number = 4'd4;
-      6'b101101: matrix_to_number = 4'd5;
-      6'b101011: matrix_to_number = 4'd6;
-      6'b100111: matrix_to_number = 4'd11;
-      6'b011110: matrix_to_number = 4'd7;
-      6'b011101: matrix_to_number = 4'd8;
-      6'b011011: matrix_to_number = 4'd9;
-      6'b010111: matrix_to_number = 4'd12;
-      6'b001110: matrix_to_number = 4'd14;
-      6'b001101: matrix_to_number = 4'd0;
-      6'b001011: matrix_to_number = 4'd15;
-      6'b000111: matrix_to_number = 4'd13;
+      6'b001110: matrix_to_number = 4'd1;
+      6'b001101: matrix_to_number = 4'd2;
+      6'b001011: matrix_to_number = 4'd3;
+      6'b000111: matrix_to_number = 4'd10;
+
+      6'b011110: matrix_to_number = 4'd4;
+      6'b011101: matrix_to_number = 4'd5;
+      6'b011011: matrix_to_number = 4'd6;
+      6'b010111: matrix_to_number = 4'd11;
+
+      6'b101110: matrix_to_number = 4'd7;
+      6'b101101: matrix_to_number = 4'd8;
+      6'b101011: matrix_to_number = 4'd9;
+      6'b100111: matrix_to_number = 4'd12;
+
+      6'b111110: matrix_to_number = 4'd15;
+      6'b111101: matrix_to_number = 4'd0;
+      6'b111011: matrix_to_number = 4'd13;
+      6'b110111: matrix_to_number = 4'd14;
       default:   matrix_to_number = 4'd0;
     endcase
   endfunction
@@ -56,28 +65,25 @@ module matrixKeyDecoder (
       tecla_valid <= 0;
       tecla_value <= 0;
       current_row <= 0;
-      lin_matrix <= 4'b1111;
     end else begin
-      
       case (state)
         STATE_IDLE: begin
-          lin_temp = 4'b1111;
-          lin_temp[current_row] = 1'b0;
-          lin_matrix <= lin_temp;
-          
+          tecla_valid <= 0;
           if (one_pressed) begin
             debounce_cnt <= 0;
             state <= STATE_DEBOUNCE;
           end else begin
-              current_row <= current_row + 1;
-            end
+            current_row <= current_row + 1;
+          end
         end
 
         STATE_DEBOUNCE: begin
           if (one_pressed) begin
-            debounce_cnt <= debounce_cnt + 1;
-            if (debounce_cnt >= DEBOUNCE_MAX)
+            if (debounce_cnt >= DEBOUNCE_MAX) begin
               state <= STATE_ACTIVE;
+            end else begin
+              debounce_cnt <= debounce_cnt + 1;
+            end
           end else begin
             debounce_cnt <= 0;
             state <= STATE_IDLE;
@@ -86,7 +92,8 @@ module matrixKeyDecoder (
 
         STATE_ACTIVE: begin
           tecla_valid <= 1;
-          tecla_value <= matrix_to_number({~current_row + 1, col_matrix});
+          $display("Current_row=%b",current_row);
+          tecla_value <= matrix_to_number({current_row, col_matrix});
           state <= STATE_WAIT_RELEASE;
         end
 
