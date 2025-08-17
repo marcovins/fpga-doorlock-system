@@ -1,3 +1,0 @@
-Warning (10268): Verilog HDL information at auxiliar.sv(164): always construct contains both blocking and non-blocking assignments File: D:/Users/202311250013/Documents/fpga-doorlock-system/testes/operacional/auxiliar.sv Line: 164
-Warning (10268): Verilog HDL information at auxiliar.sv(245): always construct contains both blocking and non-blocking assignments File: D:/Users/202311250013/Documents/fpga-doorlock-system/testes/operacional/auxiliar.sv Line: 245
-Warning (10268): Verilog HDL information at auxiliar.sv(456): always construct contains both blocking and non-blocking assignments File: D:/Users/202311250013/Documents/fpga-doorlock-system/testes/operacional/auxiliar.sv Line: 456

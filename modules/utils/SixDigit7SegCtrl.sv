@@ -1,67 +1,27 @@
-typedef struct packed {
-    logic [3:0] BCD0;
-    logic [3:0] BCD1;
-    logic [3:0] BCD2;
-    logic [3:0] BCD3;
-    logic [3:0] BCD4;
-    logic [3:0] BCD5;
-} bcdPac_t;
-
+// SIX DIGIT
 module SixDigit7SegCtrl (
-    input  logic clk, 
-    input  logic rst,
-    input  logic enable,
-    input  bcdPac_t bcd_packet,
+    input logic clk, 
+    input logic rst,
+    input logic enable,
+    input bcdPac_t bcd_packet,
     output logic [6:0] HEX0, HEX1, HEX2, HEX3, HEX4, HEX5
 );
+    bcdPac_t bcd_reg;
 
-  // Registradores internos para armazenar os valores dos BCDs
-  bcdPac_t bcd_packet_reg;
-
-  // Bloco sequencial: atualiza os registradores com base em enable
-  always_ff @(posedge clk or posedge rst) begin
-    if (rst) begin
-      bcd_packet_reg.BCD0 <= 4'd0;
-      bcd_packet_reg.BCD1 <= 4'd0;
-      bcd_packet_reg.BCD2 <= 4'd0;
-      bcd_packet_reg.BCD3 <= 4'd0;
-      bcd_packet_reg.BCD4 <= 4'd0;
-      bcd_packet_reg.BCD5 <= 4'd0;
-    end else if (enable) begin
-      bcd_packet_reg <= bcd_packet;
+    // Registra o valor do pacote BCD quando habilitado
+    always_ff @(posedge clk or posedge rst) begin
+        if (rst) begin
+            bcd_reg <= '{default: 4'hB}; // Apaga todos os displays
+        end else if (enable) begin
+            bcd_reg <= bcd_packet;
+        end
     end
-  end
-
-  // Conversor BCD para 7 segmentos (combinacional pura)
-  function logic [6:0] bcd_to_7seg(input logic [3:0] hex);
-    case (hex)
-      4'h0: bcd_to_7seg = 7'b1000000;
-      4'h1: bcd_to_7seg = 7'b1111001;
-      4'h2: bcd_to_7seg = 7'b1011011;
-      4'h3: bcd_to_7seg = 7'b0110000;
-      4'h4: bcd_to_7seg = 7'b0011001;
-      4'h5: bcd_to_7seg = 7'b0010010;
-      4'h6: bcd_to_7seg = 7'b0000010;
-      4'h7: bcd_to_7seg = 7'b1111000;
-      4'h8: bcd_to_7seg = 7'b0000000;
-      4'h9: bcd_to_7seg = 7'b0011000;
-      4'hA: bcd_to_7seg = 7'b1111110;
-      4'hB: bcd_to_7seg = 7'b0000011;
-      4'hC: bcd_to_7seg = 7'b1000110;
-      4'hD: bcd_to_7seg = 7'b0100001;
-      4'hE: bcd_to_7seg = 7'b0000110;
-      4'hF: bcd_to_7seg = 7'b1111111;
-    endcase
-  endfunction
-
-  // Bloco combinacional: gera os sinais HEX* a partir dos registradores
-  always_comb begin
-    HEX0 = bcd_to_7seg(bcd_packet_reg.BCD0);
-    HEX1 = bcd_to_7seg(bcd_packet_reg.BCD1);
-    HEX2 = bcd_to_7seg(bcd_packet_reg.BCD2);
-    HEX3 = bcd_to_7seg(bcd_packet_reg.BCD3);
-    HEX4 = bcd_to_7seg(bcd_packet_reg.BCD4);
-    HEX5 = bcd_to_7seg(bcd_packet_reg.BCD5);
-  end
-
+    
+    // Instancia um conversor para cada um dos 6 displays
+    BCDto7SEGMENT conv0 (.bcd(bcd_reg.BCD0), .Seg(HEX0));
+    BCDto7SEGMENT conv1 (.bcd(bcd_reg.BCD1), .Seg(HEX1));
+    BCDto7SEGMENT conv2 (.bcd(bcd_reg.BCD2), .Seg(HEX2));
+    BCDto7SEGMENT conv3 (.bcd(bcd_reg.BCD3), .Seg(HEX3));
+    BCDto7SEGMENT conv4 (.bcd(bcd_reg.BCD4), .Seg(HEX4));
+    BCDto7SEGMENT conv5 (.bcd(bcd_reg.BCD5), .Seg(HEX5));
 endmodule
