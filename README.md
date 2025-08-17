@@ -70,31 +70,6 @@
   </li>
 </ul>
 
-<h3 id="modulos-logicos">🖥️ Módulos Lógicos (SystemVerilog)</h3>
-<div align="center">
-<pre><code class="language-mermaid">
-graph TD
-    A[Fechadura Top] --> B[Módulo Operacional]
-    A --> C[Módulo de Setup]
-
-    subgraph "Módulos de Lógica"
-        B --> D[Verificar Senha]
-        C --> E[Atualizar PIN Mestre]
-        C --> F[Montar Novo PIN]
-    end
-
-    subgraph "Drivers/Utils"
-        G[Decodificador de Teclado]
-        H[Controlador do Display 7-Seg]
-        I[Divisor de Frequência]
-    end
-
-    A --> G
-    A --> H
-    A --> I
-</code></pre>
-</div>
-
 <h2 id="estrutura-de-arquivos">📂 Estrutura de Arquivos</h2>
 <p>A estrutura do projeto está organizada da seguinte forma:</p>
 <pre><code>
