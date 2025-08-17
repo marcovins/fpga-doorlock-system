@@ -9,9 +9,9 @@
 <div align="center">
   <h1 style="margin-bottom: 15px;">🔒 Fechadura Eletrônica com FPGA</h1>
   <img 
-    src="https://i.redd.it/sn9gvelvf3291.gif" 
-    width="800px" 
-    height="400px" 
+    src="docs/assets.gif" 
+    width="600px" 
+    height="300px" 
     style="border-radius:10px; display:block; margin:auto; padding:1px; margin-bottom: 15px;" 
     alt="door lock" 
   />
